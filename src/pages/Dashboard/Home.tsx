@@ -272,7 +272,7 @@ export default function Home() {
 
       return Array.from(countryTotals.values())
         .sort((a, b) => b.cumulativeCases - a.cumulativeCases)
-        .slice(0, 10);
+        .slice(0, 5);
     },
     [latestRows]
   );
@@ -613,34 +613,77 @@ export default function Home() {
             <div className="mt-6">
               {regionBreakdown.length > 0 ? (
                 <Chart
-                  type="donut"
-                  width="100%"
-                  height={320}
-                  series={regionBreakdown.map(([, value]) => value)}
-                  options={{
-                    labels: regionBreakdown.map(([region]) => region),
-                    legend: { show: true },
-                    dataLabels: {
-                      enabled: true,
-                      formatter: (value) => new Intl.NumberFormat("en-US").format(Number(value)),
-                      style: { colors: ["#64748b"] },
-                      dropShadow: { enabled: false },
-                    },
-                    plotOptions: {
-                      pie: {
-                        expandOnClick: false,
-                      },
-                    },
-                    states: {
-                      hover: {
-                        filter: {
-                          type: "none",
-                        },
-                      },
-                    },
-                    colors: ["#22c55e", "#38bdf8", "#f97316", "#e11d48", "#64748b"],
-                  }}
-                />
+  type="donut"
+  width="100%"
+  height={320}
+  series={regionBreakdown.map(([, value]) => value)}
+  options={{
+    labels: regionBreakdown.map(([region]) => region),
+
+    legend: {
+      show: true,
+      formatter: function (seriesName, opts) {
+        const value = opts.w.globals.series[opts.seriesIndex];
+        const total = opts.w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+        const percent = ((value / total) * 100).toFixed(1);
+        return `${seriesName} (${percent}%)`; // 👈 legend with %
+      },
+    },
+
+    dataLabels: {
+      enabled: true,
+      formatter: function (val: number) {
+        return val > 5 ? `${val.toFixed(1)}%` : ""; // 👈 show only if > 3%
+      },
+      style: {
+        colors: ["#ffffff"], // 👈 white text
+        fontSize: "12px",
+        fontWeight: 600,
+      },
+      dropShadow: { enabled: false },
+    },
+
+    plotOptions: {
+      pie: {
+        expandOnClick: false,
+        dataLabels: {
+          offset: 0, // 👈 centered inside slice
+        },
+        donut: {
+          size: "65%",
+        },
+      },
+    },
+
+    stroke: {
+      width: 2,
+      colors: ["#ffffff"], // 👈 clean separation between slices
+    },
+
+    states: {
+      hover: {
+        filter: { type: "none" },
+      },
+      active: {
+        filter: { type: "none" },
+      },
+    },
+
+    tooltip: {
+      enabled: false,
+    },
+
+    colors: [
+      "#45ff89",
+      "#54c7f9",
+      "#fb9348",
+      "#ff5f82",
+      "#64748b",
+      "#b41bfb",
+      "#ff00bf",
+    ],
+  }}
+/>
               ) : (
                 <p className="text-sm text-slate-500">No region breakdown available yet.</p>
               )}
