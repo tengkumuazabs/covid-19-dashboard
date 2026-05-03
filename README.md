@@ -4,7 +4,7 @@ A modern, responsive COVID-19 analytics dashboard built with **React**, **TypeSc
 
 ## 🔗 Live Demo
 
-👉 https://your-live-app-link.com
+👉 https://covid-19-dashboard-delta.vercel.app/
 
 ---
 
