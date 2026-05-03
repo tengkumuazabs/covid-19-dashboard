@@ -1,204 +1,165 @@
-# TailAdmin React - Free React Tailwind Admin Dashboard Template
+# 🌍 COVID-19 Dashboard
 
-TailAdmin is a free and open-source admin dashboard template built on **React and Tailwind CSS**, providing developers
-with everything they need to create a comprehensive, data-driven back-end,
-dashboard, or admin panel solution for upcoming web projects.
+A modern, responsive COVID-19 analytics dashboard built with **React**, **TypeScript**, and **Tailwind CSS**, powered by official WHO data.
 
-With TailAdmin, you get access to all the necessary dashboard UI components, elements, and pages required to build a
-feature-rich and complete dashboard or admin panel. Whether you're building dashboard or admin panel for a complex web
-application or a simple website, TailAdmin is the perfect solution to help you get up and running quickly.
+## 🔗 Live Demo
 
-![TailAdmin React.js Dashboard Preview](./banner.png)
+👉 https://your-live-app-link.com
 
-## Overview
+---
 
-TailAdmin provides essential UI components and layouts for building feature-rich, data-driven admin dashboards and
-control panels. It's built on:
+## 📊 Overview
 
-- React 19
-- TypeScript
-- Tailwind CSS v4
+This dashboard provides an interactive way to explore global COVID-19 data, including:
 
-### Quick Links
+* Total cases and deaths
+* Daily new cases and deaths
+* Historical trends over time
+* Country-level breakdowns
+* Regional insights
 
-- [✨ Visit Website](https://tailadmin.com)
-- [📄 Documentation](https://tailadmin.com/docs)
-- [⬇️ Download](https://tailadmin.com/download)
-- [🖌️ Figma Design File (Community Edition)](https://www.figma.com/community/file/1214477970819985778)
-- [⚡ Get PRO Version](https://tailadmin.com/pricing)
+Users can filter data dynamically by **region** and **country**, making it easy to analyze trends at different levels.
 
-### Demos
+---
 
-- [Free Version](https://free-react-demo.tailadmin.com/)
-- [Pro Version](https://react-demo.tailadmin.com)
+## ✨ Features
 
-### Other Versions
+### 📈 Data Visualization
 
-- [HTML Version](https://github.com/TailAdmin/tailadmin-free-tailwind-dashboard-template)
-- [Next.js Version](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
-- [Vue.js Version](https://github.com/TailAdmin/vue-tailwind-admin-dashboard)
-- [Angular Version](https://github.com/TailAdmin/free-angular-tailwind-dashboard)
-- [Laravel Version](https://github.com/TailAdmin/tailadmin-laravel)
+* Line charts for **monthly trends** (cases & deaths)
+* Bar chart for **top 10 countries by cases**
+* Donut chart for **regional distribution**
 
-## Installation
+### 🌎 Interactive Filtering
 
-### Prerequisites
+* Filter by **WHO region**
+* Filter by **country**
+* Search countries with **debounced input**
 
-To get started with TailAdmin, ensure you have the following prerequisites installed and set up:
+### 📋 Data Table
 
-- Node.js 18.x or later (recommended to use Node.js 20.x or later)
+* Sortable columns
+* Pagination support
+* Clean and responsive UI
+* Country flags using emoji
 
-### Cloning the Repository
+### ⚡ Performance Optimizations
 
-Clone the repository using the following command:
+* `useMemo` for heavy computations
+* `useCallback` for stable handlers
+* Custom `useDebounce` hook for search input
+* Efficient data preprocessing
 
-```bash
-git clone https://github.com/TailAdmin/free-react-tailwind-admin-dashboard.git
+---
+
+## 🧠 Data Source
+
+* WHO COVID-19 dataset (CSV)
+* Processed and transformed into a structured format via a custom hook:
+
+  ```
+  useCovidData
+  ```
+
+---
+
+## 🏗️ Tech Stack
+
+* **React**
+* **TypeScript**
+* **Tailwind CSS**
+* **ApexCharts** (via `react-apexcharts`)
+* **React Vector Maps** (`@react-jvectormap`)
+
+---
+
+## 📁 Project Structure (Simplified)
+
+```
+src/
+├── components/
+│   └── common/
+│       └── PageMeta.tsx
+├── hooks/
+│   └── useCovidData.ts
+├── pages/
+│   └── Home.tsx
+public/
+└── data/
+    └── WHO-COVID-19-global-data.csv
 ```
 
-> Windows Users: place the repository near the root of your drive if you face issues while cloning.
+---
 
-1. Install dependencies:
+## 🚀 Getting Started
 
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
+### 1. Clone the repository
 
-2. Start the development server:
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
+```bash
+git clone https://github.com/tengkumuazabs/covid-19-dashboard.git
+cd covid-19-dashboard
+```
 
-## Components
+### 2. Install dependencies
 
-TailAdmin is a pre-designed starting point for building a web-based dashboard using React.js and Tailwind CSS. The
-template includes:
+```bash
+npm install
+```
 
-- Sophisticated and accessible sidebar
-- Data visualization components
-- Prebuilt profile management and 404 page
-- Tables and Charts(Line and Bar)
-- Authentication forms and input elements
-- Alerts, Dropdowns, Modals, Buttons and more
-- FAQ & Accordion, Testimonials, and Carousels
-- Can't forget Dark Mode 🕶️
+### 3. Run the development server
 
-All components are built with React and styled using Tailwind CSS for easy customization.
+```bash
+npm run dev
+```
 
-## Feature Comparison
+---
 
-### Free Version
+## 📌 Key Functionalities
 
-- 1 Unique Dashboard
-- 35+ dashboard components
-- 50+ UI elements
-- Basic Figma design files
-- Community support
+### 🔍 Filtering Logic
 
-### Pro Version
+* Region and country filters dynamically update available options
+* Filters are applied before aggregation for accurate metrics
 
-- 7 Unique Dashboards: Analytics, Ecommerce, Marketing, CRM, SaaS, Stocks, Logistics (more coming soon)
-- 500+ dashboard components and UI elements
-- Complete Figma design file
-- Email support
+### 📅 Latest Data Calculation
 
-To learn more about pro version features and pricing, visit our [pricing page](https://tailadmin.com/pricing).
+* Automatically detects the **latest available date**
+* Aggregates totals based on the most recent dataset
 
-## Changelog
+### 📊 Trend Aggregation
 
-### Version 2.3.0 - [April 28, 2026]
-- Added **AI Dashboard** with token usage and revenue tracking.
-- Added **Sales Dashboard** with retention and multi-channel analytics.
-- Added **Finance Dashboard** with cashflow and balance management.
-- Introduced **6 New Layout variations** for improved UI flexibility.
-- Integrated **Advanced Data Visualization** with 7+ new chart types.
+* Groups data by **month (YYYY-MM)**
+* Computes total new cases and deaths per month
 
-### Version 2.1.0 - [Dec 30, 2025]
+### 🌐 Map Support (Optional)
 
-- Resolved Date Picker positioning and input issues in Charts.
+* Includes world map visualization (currently commented out)
+* Supports country-level case and death intensity
 
-### Version 2.0.2 - [March 25, 2025]
+---
 
-- Upgraded to React 19
-- Included overrides for packages to prevent peer dependency errors.
-- Migrated from react-flatpickr to flatpickr package for React 19 support
+## ⚠️ Notes
 
-### Version 2.0.1 - [February 27, 2025]
+* Large dataset files (CSV/ZIP) are included in the repository
+* Consider using **Git LFS** if expanding dataset size
+* Map visualization is currently disabled for performance/UI reasons
 
-#### Update Overview
+---
 
-- Upgraded to Tailwind CSS v4 for better performance and efficiency.
-- Updated class usage to match the latest syntax and features.
-- Replaced deprecated class and optimized styles.
+## 📸 Screenshots
 
-#### Next Steps
+*Add screenshots here if needed*
 
-- Run npm install or yarn install to update dependencies.
-- Check for any style changes or compatibility issues.
-- Refer to the Tailwind CSS v4 [Migration Guide](https://tailwindcss.com/docs/upgrade-guide) on this release. if needed.
-- This update keeps the project up to date with the latest Tailwind improvements. 🚀
+---
 
-### Version 2.0.0 - [February 2025]
+## 📄 License
 
-A major update with comprehensive redesign and modern React patterns implementation.
+This project is based on an open-source admin template and WHO public data.
 
-#### Major Improvements
+---
 
-- Complete UI redesign with modern React patterns
-- New features: collapsible sidebar, chat, and calendar
-- Improved performance and accessibility
-- Updated data visualization using ApexCharts
+## 🙌 Acknowledgements
 
-#### Key Features
-
-- Redesigned dashboards (Ecommerce, Analytics, Marketing, CRM)
-- Enhanced navigation with React Router integration
-- Advanced tables with sorting and filtering
-- Calendar with drag-and-drop support
-- New UI components and improved existing ones
-
-#### Breaking Changes
-
-- Updated sidebar component API
-- Migrated charts to ApexCharts
-- Revised authentication system
-
-[Read more](https://tailadmin.com/docs/update-logs/react) on this release.
-
-### Version 1.3.7 - [June 20, 2024]
-
-#### Enhancements
-
-1. Remove Repetition of DefaultLayout in every Pages
-2. Add ClickOutside Component for reduce repeated functionality in Header Message, Notification and User Dropdowns.
-
-### Version 1.3.6 - [Jan 31, 2024]
-
-#### Enhancements
-
-1. Integrate flatpickr in [Date Picker/Form Elements]
-2. Change color after select an option [Select Element/Form Elements].
-3. Make it functional [Multiselect Dropdown/Form Elements].
-4. Make best value editable [Pricing Table One/Pricing Table].
-5. Rearrange Folder structure.
-
-### Version 1.2.0 - [Apr 28, 2023]
-
-- Add Typescript in TailAdmin React.
-
-### Version 1.0.0 - Initial Release - [Mar 13, 2023]
-
-- Initial release of TailAdmin React.
-
-## License
-
-TailAdmin React.js Free Version is released under the MIT License.
-
-## Support
-
-If you find this project helpful, please consider giving it a star on GitHub. Your support helps us continue developing
-and maintaining this template.
+* World Health Organization (WHO)
+* TailAdmin template
+* ApexCharts
