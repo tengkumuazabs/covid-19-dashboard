@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Chart from "react-apexcharts";
 import PageMeta from "../../components/common/PageMeta";
-import { VectorMap } from "@react-jvectormap/core";
-import { worldMill } from "@react-jvectormap/world";
 import useCovidData from "../../hooks/useCovidData";
 
 type CovidDataRow = {
@@ -250,39 +248,6 @@ export default function Home() {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, data]) => ({ date, newCases: data.newCases, newDeaths: data.newDeaths }));
   }, [processedData.rows, selectedRegion, selectedCountry]);
-
-  const latestCountryTotals = useMemo(() => {
-    const totals = new Map<string, { cases: number; deaths: number }>();
-
-    for (const row of latestRows) {
-      const code = row.countryCode || row.country;
-      const normalizedCode = code.toUpperCase();
-      if (!normalizedCode) continue;
-
-      totals.set(normalizedCode, {
-        cases: (totals.get(normalizedCode)?.cases || 0) + row.cumulativeCases,
-        deaths: (totals.get(normalizedCode)?.deaths || 0) + row.cumulativeDeaths,
-      });
-    }
-
-    return totals;
-  }, [latestRows]);
-
-  const totalCasesMapData = useMemo(
-    () =>
-      Object.fromEntries(
-        Array.from(latestCountryTotals.entries()).map(([code, totals]) => [code, totals.cases])
-      ),
-    [latestCountryTotals]
-  );
-
-  const totalDeathsMapData = useMemo(
-    () =>
-      Object.fromEntries(
-        Array.from(latestCountryTotals.entries()).map(([code, totals]) => [code, totals.deaths])
-      ),
-    [latestCountryTotals]
-  );
 
   const regionBreakdown = useMemo(() => {
     const regions = new Map<string, number>();
@@ -657,7 +622,6 @@ export default function Home() {
                     legend: { show: true },
                     dataLabels: {
                       enabled: true,
-                      position: 'outside',
                       formatter: (value) => new Intl.NumberFormat("en-US").format(Number(value)),
                       style: { colors: ["#64748b"] },
                       dropShadow: { enabled: false },
