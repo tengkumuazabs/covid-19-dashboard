@@ -724,6 +724,11 @@ export default function Home() {
                       "#b41bfb",
                       "#ff00bf",
                     ],
+
+                    fill: {
+                      opacity: 0.7, // 👈 50% opacity
+                    },
+
                   }}
                 />
               ) : (
