@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Chart from "react-apexcharts";
 import PageMeta from "../../components/common/PageMeta";
+import { ThemeToggleButton } from "../../components/common/ThemeToggleButton";
+import { useTheme } from "../../context/ThemeContext";
 import useCovidData from "../../hooks/useCovidData";
 
 type CovidDataRow = {
@@ -89,6 +91,8 @@ export default function Home() {
 
   // Debounce search query to avoid excessive filtering
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  const { theme } = useTheme();
 
   // Pre-process data once when rawData changes
   const processedData = useMemo(() => {
@@ -259,6 +263,39 @@ export default function Home() {
     return Array.from(regions.entries()).sort((a, b) => b[1] - a[1]);
   }, [latestRows]);
 
+  const donutLabelColors = useMemo(() => {
+    const sliceColors = [
+      "#45ff89",
+      "#54c7f9",
+      "#fb9348",
+      "#ff5f82",
+      "#64748b",
+      "#b41bfb",
+      "#ff00bf",
+    ];
+
+    const getLuminance = (hex: string) => {
+      const normalized = hex.replace("#", "");
+      const r = parseInt(normalized.slice(0, 2), 16) / 255;
+      const g = parseInt(normalized.slice(2, 4), 16) / 255;
+      const b = parseInt(normalized.slice(4, 6), 16) / 255;
+      const a = [r, g, b].map((value) =>
+        value <= 0.03928
+          ? value / 12.92
+          : Math.pow((value + 0.055) / 1.055, 2.4)
+      );
+      return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+    };
+
+    if (theme !== "dark") {
+      return ["#ffffff"];
+    }
+
+    return sliceColors.slice(0, regionBreakdown.length).map((color) =>
+      getLuminance(color) > 0.55 ? "#020617" : "#ffffff"
+    );
+  }, [theme, regionBreakdown.length]);
+
   const topCountriesByCases = useMemo(
     () => {
       const countryTotals = new Map<string, CovidDataRow>();
@@ -340,99 +377,104 @@ export default function Home() {
       />
 
       <div className="space-y-6">
-        <section className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-sm md:p-8">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <section className="rounded-3xl border border-slate-200/70 bg-white dark:bg-slate-950 dark:border-slate-800/70 p-6 shadow-sm md:p-8">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
                 WHO COVID-19 dashboard
               </p>
-              <h1 className="mt-2 text-3xl font-semibold text-slate-900">
+              <h1 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 Clean COVID-19 trend explorer
               </h1>
-              <p className="mt-2 max-w-2xl text-sm text-slate-600">
+              <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
                 Filter the dataset by region and country to explore the latest reported values and evolving trends.
               </p>
             </div>
 
-            <div className="grid w-full gap-3 sm:grid-cols-2 xl:w-auto xl:grid-cols-2">
-              <label className="block text-sm font-medium text-slate-700">
-                Region
-                <select
-                  value={selectedRegion}
-                  onChange={(event) => setSelectedRegion(event.target.value)}
-                  className="mt-2 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                >
-                  {regionOptions.map((region) => (
-                    <option key={region} value={region}>
-                      {region}
-                    </option>
-                  ))}
-                </select>
-              </label>
+            <div className="flex min-w-[260px] flex-col gap-3">
+              <div className="flex justify-end">
+                <ThemeToggleButton />
+              </div>
+              <div className="grid w-full gap-3 sm:grid-cols-2 xl:w-[700px] xl:grid-cols-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Region
+                  <select
+                    value={selectedRegion}
+                    onChange={(event) => setSelectedRegion(event.target.value)}
+                    className="custom-dashboard-select mt-2 w-full rounded-3xl border border-slate-200 bg-white px-4 pr-14 py-3 text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-slate-500 dark:focus:ring-slate-700"
+                  >
+                    {regionOptions.map((region) => (
+                      <option key={region} value={region}>
+                        {region}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-              <label className="block text-sm font-medium text-slate-700">
-                Country
-                <select
-                  value={selectedCountry}
-                  onChange={(event) => setSelectedCountry(event.target.value)}
-                  className="mt-2 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                >
-                  {countryOptions.map((country) => (
-                    <option key={country} value={country}>
-                      {country}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Country
+                  <select
+                    value={selectedCountry}
+                    onChange={(event) => setSelectedCountry(event.target.value)}
+                    className="custom-dashboard-select mt-2 w-full rounded-3xl border border-slate-200 bg-white px-4 pr-14 py-3 text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-slate-500 dark:focus:ring-slate-700"
+                  >
+                    {countryOptions.map((country) => (
+                      <option key={country} value={country}>
+                        {country}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-sm">
+        <section className="rounded-3xl border border-slate-200/70 bg-white dark:bg-slate-950 dark:border-slate-800/70 p-6 shadow-sm">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-3xl border border-slate-200/70 bg-slate-50 p-5">
-              <p className="text-sm font-medium text-slate-500">Total Cases</p>
-              <p className="mt-4 text-3xl font-semibold text-slate-900">
+            <div className="rounded-3xl border border-slate-200/70 bg-slate-50 dark:border-slate-800/70 dark:bg-slate-900 p-5">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Cases</p>
+              <p className="mt-4 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {formatNumber(totals.totalCases)}
               </p>
-              <p className="mt-2 text-sm text-slate-500">Latest cumulative total.</p>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Latest cumulative total.</p>
             </div>
-            <div className="rounded-3xl border border-slate-200/70 bg-slate-50 p-5">
-              <p className="text-sm font-medium text-slate-500">Total Deaths</p>
-              <p className="mt-4 text-3xl font-semibold text-slate-900">
+            <div className="rounded-3xl border border-slate-200/70 bg-slate-50 dark:border-slate-800/70 dark:bg-slate-900 p-5">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Deaths</p>
+              <p className="mt-4 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {formatNumber(totals.totalDeaths)}
               </p>
-              <p className="mt-2 text-sm text-slate-500">Latest reported deaths.</p>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Latest reported deaths.</p>
             </div>
-            <div className="rounded-3xl border border-slate-200/70 bg-slate-50 p-5">
-              <p className="text-sm font-medium text-slate-500">New Cases</p>
-              <p className="mt-4 text-3xl font-semibold text-slate-900">
+            <div className="rounded-3xl border border-slate-200/70 bg-slate-50 dark:border-slate-800/70 dark:bg-slate-900 p-5">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">New Cases</p>
+              <p className="mt-4 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {formatNumber(totals.latestNewCases.value)}
               </p>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                 As of {formatDate(totals.latestNewCases.date)}.
               </p>
             </div>
-            <div className="rounded-3xl border border-slate-200/70 bg-slate-50 p-5">
-              <p className="text-sm font-medium text-slate-500">New Deaths</p>
-              <p className="mt-4 text-3xl font-semibold text-slate-900">
+            <div className="rounded-3xl border border-slate-200/70 bg-slate-50 dark:border-slate-800/70 dark:bg-slate-900 p-5">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">New Deaths</p>
+              <p className="mt-4 text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {formatNumber(totals.latestNewDeaths.value)}
               </p>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                 As of {formatDate(totals.latestNewDeaths.date)}.
               </p>
             </div>
           </div>
         </section>
 
-        <section className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-sm">
+        <section className="rounded-3xl border border-slate-200/70 bg-white dark:bg-slate-950 dark:border-slate-800/70 p-6 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Cases Over Time</p>
-              <h2 className="mt-1 text-xl font-semibold text-slate-900">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Cases Over Time</p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">
                 New cases and deaths trend
               </h2>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                 {selectedCountry !== ALL_COUNTRIES
                   ? selectedCountry
                   : selectedRegion !== ALL_REGIONS
@@ -441,7 +483,7 @@ export default function Home() {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="rounded-3xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+              <div className="rounded-3xl bg-slate-50 dark:bg-slate-900 px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
                 Monthly new cases/deaths
               </div>
             </div>
@@ -450,8 +492,8 @@ export default function Home() {
           <div className="mt-6 grid gap-4 xl:grid-cols-2">
             {historicalTrend.length > 0 ? (
               <>
-                <div className="rounded-3xl border border-slate-200/70 bg-slate-50 p-4">
-                  <p className="text-sm font-medium text-slate-500">New Cases</p>
+                <div className="rounded-3xl border border-slate-200/70 bg-slate-50 dark:border-slate-800/70 dark:bg-slate-900 p-4">
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">New Cases</p>
                   <div className="mt-4">
                     <Chart
                       type="line"
@@ -502,8 +544,8 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-slate-200/70 bg-slate-50 p-4">
-                  <p className="text-sm font-medium text-slate-500">New Deaths</p>
+                <div className="rounded-3xl border border-slate-200/70 bg-slate-50 dark:border-slate-800/70 dark:bg-slate-900 p-4">
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">New Deaths</p>
                   <div className="mt-4">
                     <Chart
                       type="line"
@@ -561,11 +603,11 @@ export default function Home() {
         </section>
 
         <div className="grid gap-4 xl:grid-cols-[2fr_1fr]">
-          <section className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-sm">
+          <section className="rounded-3xl border border-slate-200/70 bg-white dark:bg-slate-950 dark:border-slate-800/70 p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-medium text-slate-500">Top 10 countries</p>
-                <h2 className="mt-1 text-xl font-semibold text-slate-900">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Top 10 countries</p>
+                <h2 className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">
                   Cases by country
                 </h2>
               </div>
@@ -600,17 +642,17 @@ export default function Home() {
             
           </section>
 
-          <section className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-sm">
+          <section className="rounded-3xl border border-slate-200/70 bg-white dark:bg-slate-950 dark:border-slate-800/70 p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-medium text-slate-500">Cases by region</p>
-                <h2 className="mt-1 text-xl font-semibold text-slate-900">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Cases by region</p>
+                <h2 className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">
                   Region breakdown
                 </h2>
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-6" id="chartDarkStyle">
               {regionBreakdown.length > 0 ? (
                 <Chart
                   type="donut"
@@ -636,7 +678,7 @@ export default function Home() {
                         return val > 5 ? `${val.toFixed(1)}%` : ""; // 👈 show only if > 3%
                       },
                       style: {
-                        colors: ["#ffffff"], // 👈 white text
+                        colors: donutLabelColors,
                         fontSize: "12px",
                         fontWeight: 600,
                       },
@@ -691,19 +733,19 @@ export default function Home() {
           </section>
         </div>
 
-        {/* <section className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-sm">
+        {/* <section className="rounded-3xl border border-slate-200/70 bg-white dark:bg-slate-950 dark:border-slate-800/70 p-6 shadow-sm">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Map overview</p>
-              <h2 className="mt-1 text-xl font-semibold text-slate-900">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Map overview</p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">
                 Total cases and deaths by country
               </h2>
             </div>
           </div>
 
           <div className="mt-6 grid gap-4 xl:grid-cols-2">
-            <div className="rounded-3xl border border-slate-200/70 bg-slate-50 p-4">
-              <p className="text-sm font-medium text-slate-500">Total Cases</p>
+            <div className="rounded-3xl border border-slate-200/70 bg-slate-50 dark:border-slate-800/70 dark:bg-slate-900 p-4">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Cases</p>
               <div className="mt-4 h-[420px]">
                 <VectorMap
                   map={worldMill}
@@ -729,8 +771,8 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-slate-200/70 bg-slate-50 p-4">
-              <p className="text-sm font-medium text-slate-500">Total Deaths</p>
+            <div className="rounded-3xl border border-slate-200/70 bg-slate-50 dark:border-slate-800/70 dark:bg-slate-900 p-4">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Deaths</p>
               <div className="mt-4 h-[420px]">
                 <VectorMap
                   map={worldMill}
@@ -758,31 +800,31 @@ export default function Home() {
           </div>
         </section> */}
 
-        <section className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-sm">
+        <section className="rounded-3xl border border-slate-200/70 bg-white dark:bg-slate-950 dark:border-slate-800/70 p-6 shadow-sm">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Country breakdown</p>
-              <h2 className="mt-1 text-xl font-semibold text-slate-900">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Country breakdown</p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">
                 Latest country-level metrics
               </h2>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                 Search country
                 <input
                   type="search"
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Filter by country name"
-                  className="mt-2 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                  className="mt-2 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-slate-500 dark:focus:ring-slate-700"
                 />
               </label>
             </div>
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
+          <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800">
             <table className="min-w-full text-left text-sm">
-              <thead className="bg-slate-100 text-slate-600">
+              <thead className="bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-400">
                 <tr>
                   <th
                     className="cursor-pointer px-4 py-3"
@@ -820,9 +862,9 @@ export default function Home() {
                 {paginatedTableRows.map((row) => (
                   <tr
                     key={`${row.country}-${row.date}`}
-                    className="border-t border-slate-200 hover:bg-slate-50"
+                    className="border-t border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
                   >
-                    <td className="px-4 py-3 font-medium text-slate-900">
+                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
                       <div className="inline-flex items-center gap-2">
                         {row.countryCode ? (
                           <span className="text-lg">{countryFlagEmoji(row.countryCode)}</span>
@@ -830,10 +872,10 @@ export default function Home() {
                         <span>{row.country}</span>
                       </div>
                     </td>
-                    {/* <td className="px-4 py-3 text-slate-700">{formatNumber(row.newCases)}</td> */}
-                    <td className="px-4 py-3 text-slate-700">{formatNumber(row.cumulativeCases)}</td>
-                    {/* <td className="px-4 py-3 text-slate-700">{formatNumber(row.newDeaths)}</td> */}
-                    <td className="px-4 py-3 text-slate-700">{formatNumber(row.cumulativeDeaths)}</td>
+                    {/* <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{formatNumber(row.newCases)}</td> */}
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{formatNumber(row.cumulativeCases)}</td>
+                    {/* <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{formatNumber(row.newDeaths)}</td> */}
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{formatNumber(row.cumulativeDeaths)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -850,7 +892,7 @@ export default function Home() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="rounded-3xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm outline-none transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-3xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm outline-none transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Previous
               </button>
@@ -860,7 +902,7 @@ export default function Home() {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="rounded-3xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm outline-none transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-3xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm outline-none transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Next
               </button>
