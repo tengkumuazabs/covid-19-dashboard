@@ -288,6 +288,19 @@ export default function Home() {
     );
   }, [theme, regionBreakdown.length]);
 
+  const trendDateLabels = historicalTrend.map((item) => item.date);
+  const trendLabelStep = Math.max(1, Math.ceil(trendDateLabels.length / 8));
+  const trendTickAmount = Math.min(8, Math.max(1, trendDateLabels.length));
+  const formatTrendLabel = (value: string, index: number) => {
+    if (index % trendLabelStep !== 0) return "";
+    const [year, month] = String(value).split("-");
+    const months = [
+      "Jan","Feb","Mar","Apr","May","Jun",
+      "Jul","Aug","Sep","Oct","Nov","Dec",
+    ];
+    return `${months[parseInt(month, 10) - 1]} ${year}`;
+  };
+
   const topCountriesByCases = useMemo(
     () => {
       const countryTotals = new Map<string, CovidDataRow>();
@@ -369,14 +382,19 @@ export default function Home() {
       />
 
       <div className="space-y-6">
-        <section className="rounded-3xl border border-slate-200/70 bg-white dark:bg-slate-950 dark:border-slate-800/70 p-6 shadow-sm md:p-8">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+        <section className="relative rounded-3xl border border-slate-200/70 bg-white dark:bg-slate-950 dark:border-slate-800/70 p-6 pr-8 shadow-sm md:p-8 md:pr-12 xl:pr-20">
+          <div className="absolute right-4 top-4 z-10">
+            <ThemeToggleButton />
+          </div>
+
+          <div className="flex flex-col gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
                 WHO COVID-19 dashboard
               </p>
               <h1 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">
-                Clean COVID-19 trend explorer
+                <span className="block">Clean COVID-19</span>
+                <span className="block">trend explorer</span>
               </h1>
               <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
                 Filter the dataset by region and country to explore the latest reported values and evolving trends.
@@ -384,9 +402,6 @@ export default function Home() {
             </div>
 
             <div className="flex min-w-[260px] flex-col gap-3">
-              <div className="flex justify-end">
-                <ThemeToggleButton />
-              </div>
               <div className="grid w-full gap-3 sm:grid-cols-2 xl:w-[700px] xl:grid-cols-2">
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                   Region
@@ -474,11 +489,11 @@ export default function Home() {
                   : "Global"} data across all time periods.
               </p>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            {/* <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <div className="rounded-3xl bg-slate-50 dark:bg-slate-900 px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
                 Monthly new cases/deaths
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div className="mt-6 grid gap-4 xl:grid-cols-2">
@@ -500,25 +515,34 @@ export default function Home() {
                       options={{
                         chart: {
                           toolbar: { show: false },
+                          redrawOnParentResize: true,
                         },
                         legend: { show: false },
                         stroke: { curve: "smooth", width: 3 },
                         dataLabels: { enabled: false },
                         xaxis: {
-                          categories: historicalTrend.map((item) => item.date),
+                          categories: trendDateLabels,
+                          tickAmount: trendTickAmount,
                           labels: {
+                            hideOverlappingLabels: true,
                             rotate: -45,
                             style: { colors: "#64748b" },
-                            formatter: (value) => {
-                              const [year, month] = String(value).split("-");
-                              const months = [
-                                "Jan","Feb","Mar","Apr","May","Jun",
-                                "Jul","Aug","Sep","Oct","Nov","Dec"
-                              ];
-                              return `${months[parseInt(month) - 1]} ${year}`;
-                            },
+                            formatter: (value: string, _timestamp: number, index: number) =>
+                              formatTrendLabel(String(value), index),
                           },
                         },
+                        responsive: [
+                          {
+                            breakpoint: 768,
+                            options: {
+                              chart: { width: "100%" },
+                              xaxis: {
+                                labels: { rotate: -60 },
+                                tickAmount: Math.min(5, trendDateLabels.length),
+                              },
+                            },
+                          },
+                        ],
                         yaxis: {
                           labels: { style: { colors: "#64748b" } },
                         },
@@ -552,25 +576,34 @@ export default function Home() {
                       options={{
                         chart: {
                           toolbar: { show: false },
+                          redrawOnParentResize: true,
                         },
                         legend: { show: false },
                         stroke: { curve: "smooth", width: 3 },
                         dataLabels: { enabled: false },
                         xaxis: {
-                          categories: historicalTrend.map((item) => item.date),
+                          categories: trendDateLabels,
+                          tickAmount: trendTickAmount,
                           labels: {
+                            hideOverlappingLabels: true,
                             rotate: -45,
                             style: { colors: "#64748b" },
-                            formatter: (value) => {
-                              const [year, month] = String(value).split("-");
-                              const months = [
-                                "Jan","Feb","Mar","Apr","May","Jun",
-                                "Jul","Aug","Sep","Oct","Nov","Dec"
-                              ];
-                              return `${months[parseInt(month) - 1]} ${year}`;
-                            },
+                            formatter: (value: string, _timestamp: number, index: number) =>
+                              formatTrendLabel(String(value), index),
                           },
                         },
+                        responsive: [
+                          {
+                            breakpoint: 768,
+                            options: {
+                              chart: { width: "100%" },
+                              xaxis: {
+                                labels: { rotate: -60 },
+                                tickAmount: Math.min(5, trendDateLabels.length),
+                              },
+                            },
+                          },
+                        ],
                         yaxis: {
                           labels: { style: { colors: "#64748b" } },
                         },
@@ -617,13 +650,26 @@ export default function Home() {
                   },
                 ]}
                 options={{
-                  chart: { toolbar: { show: false } },
+                  chart: { toolbar: { show: false }, redrawOnParentResize: true },
                   plotOptions: { bar: { borderRadius: 10, columnWidth: "55%" } },
                   dataLabels: { enabled: false },
                   xaxis: {
                     categories: topCountriesByCases.map((row) => row.country),
-                    labels: { rotate: -45, style: { colors: "#64748b" } },
+                    tickAmount: Math.min(6, topCountriesByCases.length),
+                    labels: { hideOverlappingLabels: true, rotate: -45, style: { colors: "#64748b" } },
                   },
+                  responsive: [
+                    {
+                      breakpoint: 768,
+                      options: {
+                        chart: { width: "100%" },
+                        xaxis: {
+                          labels: { rotate: -60, hideOverlappingLabels: true },
+                          tickAmount: Math.min(4, topCountriesByCases.length),
+                        },
+                      },
+                    },
+                  ],
                   yaxis: { labels: { style: { colors: "#64748b" } } },
                   grid: { borderColor: "#e2e8f0" },
                   colors: ["#0ea5e9"],
@@ -665,7 +711,7 @@ export default function Home() {
                     },
 
                     dataLabels: {
-                      enabled: true,
+                      enabled: false,
                       formatter: function (val: number) {
                         return val > 5 ? `${val.toFixed(1)}%` : ""; // 👈 show only if > 3%
                       },
@@ -690,7 +736,7 @@ export default function Home() {
                     },
 
                     stroke: {
-                      width: 2,
+                      width: 0,
                       colors: ["#ffffff"], // 👈 clean separation between slices
                     },
 
@@ -718,7 +764,7 @@ export default function Home() {
                     ],
 
                     fill: {
-                      opacity: 0.7, // 👈 50% opacity
+                      opacity: 1, // 👈 50% opacity
                     },
 
                   }}

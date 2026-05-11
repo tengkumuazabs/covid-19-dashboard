@@ -16,6 +16,7 @@ export default function LineChartOne() {
       toolbar: {
         show: false, // Hide chart toolbar
       },
+      redrawOnParentResize: true,
     },
     stroke: {
       curve: "straight", // Define the line style (straight, smooth, or step)
@@ -74,6 +75,11 @@ export default function LineChartOne() {
         "Nov",
         "Dec",
       ],
+      tickAmount: 6,
+      labels: {
+        hideOverlappingLabels: true,
+        rotate: -45,
+      },
       axisBorder: {
         show: false, // Hide x-axis border
       },
@@ -84,6 +90,18 @@ export default function LineChartOne() {
         enabled: false, // Disable tooltip for x-axis points
       },
     },
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          chart: { width: "100%" },
+          xaxis: {
+            labels: { rotate: -60, hideOverlappingLabels: true },
+            tickAmount: 5,
+          },
+        },
+      },
+    ],
     yaxis: {
       labels: {
         style: {
@@ -112,7 +130,7 @@ export default function LineChartOne() {
   ];
   return (
     <div className="max-w-full overflow-x-auto custom-scrollbar">
-      <div id="chartEight" className="min-w-[1000px]">
+      <div id="chartEight" className="w-full min-w-0">
         <Chart options={options} series={series} type="area" height={310} />
       </div>
     </div>

@@ -11,6 +11,7 @@ export default function BarChartOne() {
       toolbar: {
         show: false,
       },
+      redrawOnParentResize: true,
     },
     plotOptions: {
       bar: {
@@ -43,6 +44,11 @@ export default function BarChartOne() {
         "Nov",
         "Dec",
       ],
+      tickAmount: 6,
+      labels: {
+        hideOverlappingLabels: true,
+        rotate: -45,
+      },
       axisBorder: {
         show: false,
       },
@@ -50,6 +56,18 @@ export default function BarChartOne() {
         show: false,
       },
     },
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          chart: { width: "100%" },
+          xaxis: {
+            labels: { rotate: -60, hideOverlappingLabels: true },
+            tickAmount: 5,
+          },
+        },
+      },
+    ],
     legend: {
       show: true,
       position: "top",
@@ -89,7 +107,7 @@ export default function BarChartOne() {
   ];
   return (
     <div className="max-w-full overflow-x-auto custom-scrollbar">
-      <div id="chartOne" className="min-w-[1000px]">
+      <div id="chartOne" className="w-full min-w-0">
         <Chart options={options} series={series} type="bar" height={180} />
       </div>
     </div>
