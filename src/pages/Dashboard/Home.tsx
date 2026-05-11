@@ -4,6 +4,7 @@ import PageMeta from "../../components/common/PageMeta";
 import { ThemeToggleButton } from "../../components/common/ThemeToggleButton";
 import { useTheme } from "../../context/ThemeContext";
 import useCovidData from "../../hooks/useCovidData";
+import ReactCountryFlag from "react-country-flag";
 
 type CovidDataRow = {
   date: string;
@@ -15,15 +16,6 @@ type CovidDataRow = {
   newDeaths: number;
   cumulativeDeaths: number;
 };
-
-const countryFlagEmoji = (countryCode: string) =>
-  countryCode
-    .toUpperCase()
-    .replace(/./g, (char) =>
-      char >= "A" && char <= "Z"
-        ? String.fromCodePoint(0x1f1e6 + char.charCodeAt(0) - 65)
-        : ""
-    );
 
 type SortField =
   | "country"
@@ -872,7 +864,14 @@ export default function Home() {
                     <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
                       <div className="inline-flex items-center gap-2">
                         {row.countryCode ? (
-                          <span className="text-lg">{countryFlagEmoji(row.countryCode)}</span>
+                          <ReactCountryFlag
+                            countryCode={row.countryCode}
+                            svg
+                            style={{
+                              width: '1.5em',
+                              height: '1.5em',
+                            }}
+                          />
                         ) : null}
                         <span>{row.country}</span>
                       </div>
